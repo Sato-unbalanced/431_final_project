@@ -9,33 +9,41 @@ define('USER_NAME',      'phpWebEngine');
 define('USER_PASSWORD',  '!_phpWebEngine');
 
 
-/*
 
-Need to set up DDL first before utilizing VVVV
+// THROW ALL OF THIS VV into another file in the future. 
 
-// Define fallback/default role for unauthenticated users
 // Guest = default role
+// NOTE: HW3 I got marked down some points for "No database users created and privileges 
+// for those users not enforced at the DB level"
+
+//Purpose of this file now is to create those MySQL users, give priverleges
+//Adapation.php connects to MYSQL as the current sessions role, $_SESSION['UserRole'] maps to MySQL username
+//Enforces access control in MySQL not just php - chapter 16 + 27
+
+
+/* 
 define('NO_ROLE', 'Guest');
 
 // Mapping of roles to corresponding DB users 
 // Match these roles in the DB 
 $DBPasswords = [
-  'Guest'    => 'Password0',  // SELECT-only access
-  'Player'   => 'Password1',
-  'Coach'    => 'Password2',
-  'Manager'  => 'Password3'
+  'Guest'   => 'Password0',  // View-only access
+  'Player'  => 'Password1',  // Can edit personal info
+  'Coach'   => 'Password2',  // TBD privileges
+  'Manager' => 'Password3'   // Full access
 ];
 
+// Function to verify an active authenticated session
 // Check if session has a valid user and valid role
 function authenticatedUser() {
   global $DBPasswords;
   return isset($_SESSION['UserName']) &&
          isset($_SESSION['UserRole']) &&
-         isset($DBPasswords[$_SESSION['UserRole']]);
+         array_key_exists($_SESSION['UserRole'], $DBPasswords);
 }
 
-// Determine what user to connect to the DB as
-$DBUser = authenticatedUser() ? $_SESSION['UserRole'] : NO_ROLE;
+// Determine which DB credentials to use (based on session or default guest)
+$DBUser     = authenticatedUser() ? $_SESSION['UserRole'] : NO_ROLE;
 $DBPassword = $DBPasswords[$DBUser];
 
 // Connect to the MySQL database using the assigned creds
