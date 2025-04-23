@@ -1,8 +1,12 @@
 <?php 
-  //login_form.php
-  require_once('config.php');       // Loads project paths 
+// login_form.php
+// Displays login form for registered users or allows guests to continue. 
+// Sends login data to handle_login.php -> session verified -> user redirected to member.php
+// login_form.php -> handle_login.php -> member.php (eventually the roster/team page)
+// References: Ch. 16 (Session/Role control), Ch. 27 (Secure login flows)
+  require_once('config.php');       // Loads the defined project paths
   require_once('Adaptation.php');   // Connects to DB using guest creds (or others if logged in)
-  session_start();                  // Managing login sessions 
+  session_start();                  // Starts/resumes session for login tracking
 ?>
 
 <!DOCTYPE html>
@@ -50,6 +54,8 @@
 <body>
   <div class="login-box">
     <h2>Login</h2>
+
+    <!-- Login sent to handle_login.php via POST -->
     <form action="handle_login.php" method="POST">
       <div class="form-group">
         <label for="username">Username:</label>
@@ -61,6 +67,7 @@
         <input type="password" name="password" id="password" required minlength="6" maxlength="16">
       </div>
 
+      <!-- Role dropdown corresponds/works with the role table in DB (ID_Role) -->
       <div class="form-group">
         <label for="role">Role:</label>
         <select name="role" id="role" required>
@@ -71,6 +78,7 @@
         </select>
       </div>
 
+      <!-- Button optons-  Login, go to register form, or continue as Guest -->
       <div class="button-group">
         <button type="submit">Login</button>
         <button type="button" onclick="location.href='register_user.php'">Register New Account</button>
@@ -80,4 +88,3 @@
   </div>
 </body>
 </html>
-
