@@ -1,10 +1,18 @@
 <?php
 // register_user.php
-// Registration form – Secure input collection. Reference Chapter 27
+// Dispaly Registration form – Secure input collection/handling & error display. Reference Ch.27
+// registering a user flow: register_user.php -> process_signup.php -> signup_success.php
+require_once('config.php');         // Project path constants
+require_once('Adaptation.php');     // DB connection settings
+session_start();                    // Start session (Ch. 16)
 
-require_once('config.php');
-require_once('Adaptation.php');
-session_start();
+// Retrieve input values and validation errors
+$preserve = $_SESSION['signup_preserve'] ?? [];
+$errors = $_SESSION['signup_errors'] ?? [];
+
+// Clear session flash data after reading (Ch. 16 – session cleanup pattern)
+unset($_SESSION['signup_preserve']);
+unset($_SESSION['signup_errors']);
 ?>
 
 <!DOCTYPE html>
@@ -27,8 +35,9 @@ session_start();
       border: 1px solid #ccc;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 400px;
     }
-    .register-box h2 {
+    h2 {
       text-align: center;
     }
     .form-group {
@@ -36,7 +45,7 @@ session_start();
     }
     label {
       display: block;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.25rem;
     }
     input, select, button {
       width: 100%;
@@ -45,113 +54,64 @@ session_start();
     .error {
       color: red;
       font-size: 0.9em;
+      margin-bottom: 0.5rem;
     }
   </style>
 </head>
 <body>
   <div class="register-box">
     <h2>Create an Account</h2>
-    <form id="registerForm" action="process_signup.php" method="POST">
-      <div class="form-group">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-        <div id="usernameError" class="error"></div>
+
+    <!-- Display form validation errors passed via session -->
+    <?php if (!empty($errors)): ?>
+      <div class="error">
+        <ul>
+          <?php foreach ($errors as $e): ?>
+            <li><?= htmlspecialchars($e) ?></li>
+          <?php endforeach; ?>
+        </ul>
       </div>
+    <?php endif; ?>
 
-      <div class="form-group">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-        <div id="emailError" class="error"></div>
-      </div>
-
-      <div class="form-group">
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-      </div>
-
-      <div class="form-group">
-        <label for="password_confirmation">Confirm Password:</label>
-        <input type="password" id="password_confirmation" name="password_confirmation" required>
-      </div>
-
-      <div class="form-group">
-        <label for="role">Role:</label>
-        <select name="role" id="role" required>
-          <option value="" disabled selected>Select role</option>
-          <option value="Player">Player</option>
-          <option value="Coach">Coach</option>
-          <option value="Manager">Manager</option>
-        </select>
-      </div>
-
-      <button type="submit">Register</button>
-    </form>
-  </div>
-
-  <script>
-    // Inline JS for validating email and username
-    document.getElementById("username").addEventListener("blur", function () {
-      const username = this.value;
-      fetch(`validate_email_username.php?field=username&value=${encodeURIComponent(username)}`)
-        .then(response => response.json())
-        .then(data => {
-          const errorBox = document.getElementById("usernameError");
-          errorBox.textContent = data.available ? "" : "Username is already taken.";
-        });
-    });
-
-    document.getElementById("email").addEventListener("blur", function () {
-      const email = this.value;
-      fetch(`validate_email_username.php?field=email&value=${encodeURIComponent(email)}`)
-        .then(response => response.json())
-        .then(data => {
-          const errorBox = document.getElementById("emailError");
-          errorBox.textContent = data.available ? "" : "Email is already registered.";
-        });
-    });
-  </script>
-</body>
-</html>
-
-<!-- Can also validate the fields using the stuff below VV if we decide no js 
-<body>
-  <div class="register-box">
-    <h2>Register New Account</h2>
+    <!-- Registration form submits to process_signup.php (Ref-Ch. 27 secure input validation) -->
     <form action="process_signup.php" method="POST">
       <div class="form-group">
         <label for="username">Username (Required, Unique):</label>
-        <input type="text" name="username" id="username" required maxlength="100">
+        <input type="text" id="username" name="username" required
+               value="<?= htmlspecialchars($preserve['username'] ?? '') ?>">
       </div>
 
       <div class="form-group">
         <label for="email">Email (Required, Unique):</label>
-        <input type="email" name="email" id="email" required maxlength="255">
+        <input type="email" id="email" name="email" required
+               value="<?= htmlspecialchars($preserve['email'] ?? '') ?>">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password (Min 8 chars, letter + number):</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+
+      <div class="form-group">
+        <label for="confirm_password">Confirm Password:</label>
+        <input type="password" id="confirm_password" name="confirm_password" required>
       </div>
 
       <div class="form-group">
         <label for="role">Role:</label>
         <select name="role" id="role" required>
-          <option value="" disabled selected>Select role</option>
-          <option value="Player">Player</option>
-          <option value="Coach">Coach</option>
-          <option value="Manager">Manager</option>
+          <option value="" disabled <?= !isset($preserve['role']) ? 'selected' : '' ?>>Select role</option>
+          <option value="Player" <?= ($preserve['role'] ?? '') === 'Player' ? 'selected' : '' ?>>Player</option>
+          <option value="Coach"  <?= ($preserve['role'] ?? '') === 'Coach'  ? 'selected' : '' ?>>Coach</option>
+          <option value="Manager"<?= ($preserve['role'] ?? '') === 'Manager'? 'selected' : '' ?>>Manager</option>
         </select>
       </div>
 
-      <div class="form-group">
-        <label for="password">Password (Min 8 chars, include a letter and number):</label>
-        <input type="password" name="password" id="password" required minlength="8">
-      </div>
-
-      <div class="form-group">
-        <label for="confirm_password">Confirm Password:</label>
-        <input type="password" name="confirm_password" id="confirm_password" required minlength="8">
-      </div>
-
-      <button type="submit">Create Account</button>
+      <button type="submit">Register</button>
+      <p style="text-align:center; margin-top:1rem;">
+        <a href="login_form.php">Back to login</a>
+      </p>
     </form>
-    <p style="margin-top:1rem;"><a href="login_form.php">Back to login</a></p>
   </div>
 </body>
-  --> 
-
+</html>
