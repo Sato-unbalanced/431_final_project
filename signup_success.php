@@ -1,7 +1,8 @@
 <?php
 // signup_success.php
-// Confirms success and links to login
-require_once('config.php');
+// Confirmation screen for after successful registration (Ch. 27)
+// Links back to login_form.php
+require_once('config.php');   // Loads site-wide config and paths 
 ?>
 
 <!DOCTYPE html>
