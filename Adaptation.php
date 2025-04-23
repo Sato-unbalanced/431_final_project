@@ -5,12 +5,16 @@
 define('DATA_BASE_NAME', 'SportsTeam');
 define('DATA_BASE_HOST', 'localhost');
 //Apache webserver values - from prior assignments 
+//phpWebEngine = bridge to database
 define('USER_NAME',      'phpWebEngine');
 define('USER_PASSWORD',  '!_phpWebEngine');
 
-
-
 // THROW ALL OF THIS VV into another file in the future. 
+//Actually do not throw into another file just yet - need to grant permissions to phpWebEngine in lampp
+//in order to work with the database for this project 
+//sudo /opt/lampp/bin/mysql -> CREATE USER 'phpWebEngine'@'localhost' IDENTIFIED BY '!_phpWebEngine';
+// -> GRANT ALL PRIVILEGES ON SportsTeam.* TO 'phpWebEngine'@'localhost'; -> FLUSH PRIVELEGES;
+
 
 // Guest = default role
 // NOTE: HW3 I got marked down some points for "No database users created and privileges 
