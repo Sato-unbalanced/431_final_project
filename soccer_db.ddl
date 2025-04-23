@@ -1,3 +1,9 @@
+-- you can reformat this to mysql
+-- you can 'pipe' this DB into your database (mariadb) with this command:
+-- sudo /opt/lampp/bin/mysql < /path/to/this/file/soccer_db.ddl 
+-- IF you don't have the database set up on your machine/server
+-- similarly, you can create this DB by accessing sudo /opt/lampp/bin/mysql and entering the sql commands manually 
+
 DROP DATABASE IF EXISTS SportsTeam;
 CREATE DATABASE SportsTeam;
 USE SportsTeam;
@@ -20,8 +26,9 @@ CREATE TABLE UserLogin (
   Email VARCHAR(255) NOT NULL UNIQUE,
   UserName VARCHAR(100) NOT NULL UNIQUE,
   Password VARCHAR(255) NOT NULL,
-  Role TINYINT UNSIGNED NOT NULL DEFAULT 1
+  Role TINYINT UNSIGNED NOT NULL DEFAULT 1,
   ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  IsTempPassword BOOLEAN DEFAULT 0,
   
   FOREIGN KEY (Role) REFERENCES Roles(ID_Role) ON DELETE CASCADE
 );
@@ -38,5 +45,12 @@ CREATE TABLE UserLogin (
 --GRANT SELECT, INSERT, UPDATE, DELETE ON SportsTeam.* TO 'Coach'@'localhost';
 --GRANT ALL PRIVILEGES ON SportsTeam.* TO 'Manager'@'localhost';
 
+CREATE TABLE IF NOT EXISTS PasswordReset (
+  ID INT AUTO_INCREMENT PRIMARY KEY,
+  Email VARCHAR(255) NOT NULL,
+  Token VARCHAR(255) NOT NULL,
+  Expiration DATETIME NOT NULL,
+  INDEX (Email)
+);
 
 
