@@ -84,6 +84,6 @@ $_SESSION['UserName'] = $username;
 $_SESSION['UserRole'] = $roleName;
 
 // Redirect to member landing page (eventually swap this with actual home page)
-header("Location: member.php");
+header("Location: landing_page.php"); //previously member.php
 exit;
 ?>
