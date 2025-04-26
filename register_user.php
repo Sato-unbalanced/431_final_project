@@ -82,6 +82,12 @@ unset($_SESSION['signup_errors']);
       </div>
 
       <div class="form-group">
+        <label for="name">First and Last Name:</label>
+        <input type="text" id="name" name="name" required
+              value="<?= htmlspecialchars($preserve['name'] ?? '') ?>">
+      </div>
+
+      <div class="form-group">
         <label for="email">Email (Required, Unique):</label>
         <input type="email" id="email" name="email" required
                value="<?= htmlspecialchars($preserve['email'] ?? '') ?>">
