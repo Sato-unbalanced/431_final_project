@@ -30,6 +30,7 @@ echo "<pre>"; print_r($_POST); echo "</pre>";
 
 // Sanitize and normalize input
 $username = strtolower(trim($_POST['username'] ?? ''));
+$name = trim($_POST['name'] ?? '');  
 $email = trim($_POST['email'] ?? '');
 $password = $_POST['password'] ?? '';
 $confirm_password = $_POST['confirm_password'] ?? '';
@@ -37,6 +38,7 @@ $role = $_POST['role'] ?? '';
 
 // Preserve input for redisplay if errors occur as mentioned above ^^
 $preserve['username'] = $username;
+$preserve['name'] = $name;
 $preserve['email'] = $email;
 $preserve['role'] = $role;
 
@@ -45,6 +47,10 @@ $preserve['role'] = $role;
 // Required field check
 if (empty($username) || empty($email) || empty($password) || empty($confirm_password) || empty($role)) {
     $errors[] = "All fields are required.";
+}
+
+if (empty($name)) {
+    $errors[] = "Name is required.";
 }
 
 // Email format validation (Ch. 27– User input filtering)
@@ -92,11 +98,10 @@ if (!empty($errors)) {
 // Hash password before storing (Ch. 27– password_hash usage)
 $roleID = $roleResult->fetch_assoc()['ID_Role'];
 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-$displayName = ucfirst($username); // Capitalize display name
 
 // Prepared statements to prevent SQL injection
 $insert = $db->prepare("INSERT INTO UserLogin (Name, Email, UserName, Password, Role) VALUES (?, ?, ?, ?, ?)");
-$insert->bind_param('ssssi', $displayName, $email, $username, $hashedPassword, $roleID);
+$insert->bind_param('ssssi', $name, $email, $username, $hashedPassword, $roleID);
 
 // On success -> clear preserved data and redirect -> signup_success.php page
 if ($insert->execute()) {
