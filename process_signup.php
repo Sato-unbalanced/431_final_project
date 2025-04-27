@@ -29,6 +29,7 @@ if ($db->connect_errno !== 0) {
 echo "<pre>"; print_r($_POST); echo "</pre>";
 
 // Sanitize and normalize input
+$id = intval($_POST['id'] ?? 0); // user ID
 $username = strtolower(trim($_POST['username'] ?? ''));
 $name = trim($_POST['name'] ?? '');  
 $email = trim($_POST['email'] ?? '');
@@ -37,6 +38,7 @@ $confirm_password = $_POST['confirm_password'] ?? '';
 $role = $_POST['role'] ?? '';
 
 // Preserve input for redisplay if errors occur as mentioned above ^^
+$preserve['id'] = $id;
 $preserve['username'] = $username;
 $preserve['name'] = $name;
 $preserve['email'] = $email;
@@ -86,6 +88,20 @@ if ($roleResult->num_rows !== 1) {
     $errors[] = "Invalid role selected.";
 }
 
+// Checking the players inserted into the Database
+// If the player does not exist, asks to double check their ID
+if ($role === "Player") {
+    $idCheck = $db->prepare("SELECT ID FROM Player WHERE ID = ?");
+    $idCheck->bind_param('i', $id);
+    $idCheck->execute();
+    $idResult = $idCheck->get_result();
+    if ($idResult->num_rows !== 1) {
+        $errors[] = "Invalid Player ID. Please check your ID.";
+    }
+}
+
+//NEED TO ADD COACH for ID CHECK AS WELL ^^^
+
 // --- On errors -> redirect back to form with session-stored data ---
 if (!empty($errors)) {
     $_SESSION['signup_errors'] = $errors;
@@ -100,8 +116,8 @@ $roleID = $roleResult->fetch_assoc()['ID_Role'];
 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
 // Prepared statements to prevent SQL injection
-$insert = $db->prepare("INSERT INTO UserLogin (Name, Email, UserName, Password, Role) VALUES (?, ?, ?, ?, ?)");
-$insert->bind_param('ssssi', $name, $email, $username, $hashedPassword, $roleID);
+$insert = $db->prepare("INSERT INTO UserLogin (ID, Name, Email, UserName, Password, Role) VALUES (?, ?, ?, ?, ?, ?)");
+$insert->bind_param('issssi', $id, $name, $email, $username, $hashedPassword, $roleID);
 
 // On success -> clear preserved data and redirect -> signup_success.php page
 if ($insert->execute()) {
