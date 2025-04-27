@@ -2,6 +2,7 @@
 // no_level_content.php
 // Public page showing general team and game info
 // No special database roles assigned; uses phpWebEngine user from Adaptation.php (no idea still)
+
 require_once('config.php');
 require_once('Adaptation.php');
 session_start(); 
