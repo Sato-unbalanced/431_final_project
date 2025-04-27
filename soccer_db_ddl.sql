@@ -19,9 +19,10 @@ INSERT INTO Roles (ID_Role, roleName) VALUES
 (3, 'Coach'), 
 (4, 'Manager');
 
-
+-- changed ID to not auto increment 
+-- association made to Player(ID) **** update EDR?
 CREATE TABLE UserLogin (
-  ID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  ID INT UNSIGNED PRIMARY KEY,
   Name VARCHAR(128) NOT NULL,
   Email VARCHAR(255) NOT NULL UNIQUE,
   UserName VARCHAR(100) NOT NULL UNIQUE,
@@ -31,6 +32,7 @@ CREATE TABLE UserLogin (
   IsTempPassword BOOLEAN DEFAULT 0,
   
   FOREIGN KEY (Role) REFERENCES Roles(ID_Role) ON DELETE CASCADE
+  FOREIGN KEY (ID) REFERENCES Player(ID) ON DELETE CASCADE
 );
  
 CREATE TABLE Team(
@@ -74,7 +76,7 @@ INSERT INTO Game(HomeTeam, AwayTeam, Location, Month, Day, Year, HomeScore, Away
 (121, 235, "Santiago Bernabéu Stadium, Madrid, Spain"         , 11, 3, 2025, 3, 1),
 (111, 121, "Wembley Stadium, London, England"                 , 11, 28, 2025, 2, 2),
 (235, 121, "Rose Bowl Stadium, Pasadena, CA, USA"             , 12, 12, 2025, 4, 3),
-(121, 111, "Estadio Metropolitano, Madrid, Spain"             , 1, 10, 2026, 3, 2),
+(121, 111, "Eestadio Metropolitano, Madrid, Spain"             , 1, 10, 2026, 3, 2),
 (235, 111, "Levi's Stadium, Santa Clara, CA, USA"             , 2, 18, 2026, 1, 1);
 
 CREATE TABLE Coach
@@ -219,8 +221,8 @@ GRANT SELECT ON Game to Player@localhost;
 GRANT SELECT ON Team to Player@localhost;
 GRANT SELECT ON Statistics to Player@localhost;
 
-GRANT SELECT, INSERT ON UserLogin to phpWebEngine@localhost IDENTIFIED by '!_phpWebEngine';
-GRANT SELECT, INSERT ON Roles to phpWebEngine@localhost IDENTIFIED by '!_phpWebEngine';
+--GRANT SELECT, INSERT ON UserLogin to phpWebEngine@localhost IDENTIFIED by '!_phpWebEngine';
+--GRANT SELECT, INSERT ON Roles to phpWebEngine@localhost IDENTIFIED by '!_phpWebEngine';
 
 
 -- Create DB users and assign passwords? 
@@ -242,5 +244,3 @@ CREATE TABLE IF NOT EXISTS PasswordReset (
   Expiration DATETIME NOT NULL,
   INDEX (Email)
 );
-
-
