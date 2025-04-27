@@ -23,11 +23,41 @@ $role = htmlspecialchars($_SESSION['UserRole']);
 <html lang="en">
 <head>
 <style>
-    body { font-family: Arial, sans-serif; background-color: #eef; padding: 2rem; }
-    .box { background: white; padding: 1rem 2rem; border-radius: 6px; max-width: 600px; margin: auto; }
+    body { 
+      font-family: Arial, sans-serif; 
+      background-color: #eef; 
+      padding: 2rem;
+      position: relative; /* Needed to position logout button */
+    }
+    .box { 
+      background: white; 
+      padding: 1rem 2rem; 
+      border-radius: 6px; 
+      max-width: 600px; 
+      margin: auto; 
+    }
+    /* Styling for the logout button */
+    .logout-button {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      background-color: #ff4c4c;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .logout-button:hover {
+      background-color: #ff0000;
+    }
 </style>
 </head>
 <body>
+
+<!-- Logout Button -->
+<a href="logout.php" class="logout-button">Log Out</a>
 
 <h1 style="text-align: center;">Welcome to SFY Soccer Management Software</h1>
 
@@ -46,8 +76,6 @@ elseif ($role === "Manager") {
     require_once("manager_level_content.php");
 }
 ?>   
-
-<p><a href="logout.php">Log out</a></p>
 
 </body>
 </html>
