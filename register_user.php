@@ -82,6 +82,12 @@ unset($_SESSION['signup_errors']);
       </div>
 
       <div class="form-group">
+        <label for="id">Player OR Coach ID (must exist in system):</label>
+        <input type="number" id="id" name="id" required
+              value="<?= htmlspecialchars($preserve['id'] ?? '') ?>">
+      </div>
+
+      <div class="form-group">
         <label for="name">First and Last Name:</label>
         <input type="text" id="name" name="name" required
               value="<?= htmlspecialchars($preserve['name'] ?? '') ?>">
