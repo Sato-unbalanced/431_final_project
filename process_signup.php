@@ -100,7 +100,17 @@ if ($role === "Player") {
     }
 }
 
-//NEED TO ADD COACH for ID CHECK AS WELL ^^^
+// Checking the coaches inserted into the Database
+// If the coach does not exist, asks to double check their ID
+if ($role === "Coach") {
+    $idCheckCoach = $db->prepare("SELECT ID FROM Coach WHERE ID = ?");
+    $idCheckCoach->bind_param('i', $id);
+    $idCheckCoach->execute();
+    $idResultCoach = $idCheckCoach->get_result();
+    if ($idResultCoach->num_rows !== 1) {
+        $errors[] = "Invalid Coach ID. Please check your ID.";
+    }
+}
 
 // --- On errors -> redirect back to form with session-stored data ---
 if (!empty($errors)) {
