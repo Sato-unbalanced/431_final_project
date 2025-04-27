@@ -1,4 +1,3 @@
-
 <?php
 require_once('Adaptation.php');
 require_once('config.php');
@@ -26,25 +25,29 @@ $role = htmlspecialchars($_SESSION['UserRole']);
 <style>
     body { font-family: Arial, sans-serif; background-color: #eef; padding: 2rem; }
     .box { background: white; padding: 1rem 2rem; border-radius: 6px; max-width: 600px; margin: auto; }
-  </style>
+</style>
 </head>
 <body>
+
 <h1 style="text-align: center;">Welcome to SFY Soccer Management Software</h1>
+
 <?php
-    require_once("no_level_content.php");
-    if($role !== "Guest")
-    {
-        require_once("player_level_content.php");
-        if($role !== "Player")
-        {
-            require_once("coach_level_content.php");
-            if ($role !== "Coach")
-            {
-                require_once("manager_level_content.php");
-            }
-        }
-    }
+// Only call appropriate role-specific page, which can itself call no_level_content.php inside
+if ($role === "Guest") {
+    require_once("no_level_content.php"); 
+}
+elseif ($role === "Player") {
+    require_once("player_level_content.php");
+}
+elseif ($role === "Coach") {
+    require_once("coach_level_content.php");
+}
+elseif ($role === "Manager") {
+    require_once("manager_level_content.php");
+}
 ?>   
+
 <p><a href="logout.php">Log out</a></p>
+
 </body>
 </html>
