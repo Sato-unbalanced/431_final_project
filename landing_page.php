@@ -29,7 +29,7 @@ $role = htmlspecialchars($_SESSION['UserRole']);
   </style>
 </head>
 <body>
- <h1>Welcome to SFY Soccer Manangment Software</h1>
+<h1 style="text-align: center;">Welcome to SFY Soccer Management Software</h1>
 <?php
     require_once("no_level_content.php");
     if($role !== "Guest")
