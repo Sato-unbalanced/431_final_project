@@ -96,22 +96,27 @@ $statsResult = $statsQuery->get_result();
 // --- Get upcoming games ---
 
 // Game.HomeTeam or Game.AwayTeam = Player.TeamID
-// Querie all games where the player's team is either home or away
+// Queries all games where the player's team is either home or away AND scores are TBA
+// Added a conditional to only query games that are TBA- have not played yet for "Upcoming games"
 $gameQuery = $db->prepare("
-    SELECT 
-        t1.Name AS HomeTeam, 
-        t2.Name AS AwayTeam, 
-        Location, 
-        Month, Day, Year
-    FROM Game
-    JOIN Team t1 ON Game.HomeTeam = t1.ID
-    JOIN Team t2 ON Game.AwayTeam = t2.ID
-    WHERE Game.HomeTeam = ? OR Game.AwayTeam = ?
-    ORDER BY Year, Month, Day
+SELECT 
+    t1.Name AS HomeTeam, 
+    t2.Name AS AwayTeam, 
+    Location, 
+    Month, Day, Year,
+    Game.HomeScore,
+    Game.AwayScore
+FROM Game
+JOIN Team t1 ON Game.HomeTeam = t1.ID
+JOIN Team t2 ON Game.AwayTeam = t2.ID
+WHERE (Game.HomeTeam = ? OR Game.AwayTeam = ?)
+  AND (Game.HomeScore = 0 AND Game.AwayScore = 0)
+ORDER BY Year, Month, Day
 ");
 $gameQuery->bind_param('ii', $playerTeamID, $playerTeamID);
 $gameQuery->execute();
 $gameResult = $gameQuery->get_result();
+
 ?>
 
 <!-- CHAT Styling change if you want later --> 
@@ -226,18 +231,19 @@ $gameResult = $gameQuery->get_result();
         <th>Location</th>
       </tr>
       <?php while ($game = $gameResult->fetch_assoc()): ?>
-      <tr>
-        <td><?= htmlspecialchars(sprintf("%02d/%02d/%04d", $game['Month'], $game['Day'], $game['Year'])) ?></td>
-        <td><?= htmlspecialchars($game['HomeTeam']) ?></td>
-        <td><?= htmlspecialchars($game['AwayTeam']) ?></td>
-        <td><?= htmlspecialchars($game['Location']) ?></td>
-      </tr>
+        <tr>
+          <td><?= htmlspecialchars(sprintf("%02d/%02d/%04d", $game['Month'], $game['Day'], $game['Year'])) ?></td>
+          <td><?= htmlspecialchars($game['HomeTeam']) ?></td>
+          <td><?= htmlspecialchars($game['AwayTeam']) ?></td>
+          <td><?= htmlspecialchars($game['Location']) ?></td>
+        </tr>
       <?php endwhile; ?>
     </table>
   <?php else: ?>
     <p>No upcoming games found.</p>
   <?php endif; ?>
 </div>
+
 
 </body>
 </html>
