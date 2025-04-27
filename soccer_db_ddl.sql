@@ -19,8 +19,7 @@ INSERT INTO Roles (ID_Role, roleName) VALUES
 (3, 'Coach'), 
 (4, 'Manager');
 
--- changed ID to not auto increment 
--- association made to Player(ID) **** update EDR?
+
 CREATE TABLE UserLogin (
   ID INT UNSIGNED PRIMARY KEY,
   Name VARCHAR(128) NOT NULL,
@@ -32,7 +31,6 @@ CREATE TABLE UserLogin (
   IsTempPassword BOOLEAN DEFAULT 0,
   
   FOREIGN KEY (Role) REFERENCES Roles(ID_Role) ON DELETE CASCADE
-  FOREIGN KEY (ID) REFERENCES Player(ID) ON DELETE CASCADE
 );
  
 CREATE TABLE Team(
@@ -67,6 +65,8 @@ CREATE TABLE Game (
   FOREIGN KEY (AwayTeam) REFERENCES Team(ID)
 );
 
+-- HomeScore =0  && AwayScore = 0 == TBA, game not played 
+-- However, in soccer 0 and 0 can be a tie game... might need to add some flag or conditional check 
 INSERT INTO Game(HomeTeam, AwayTeam, Location, Month, Day, Year, HomeScore, AwayScore) VALUES
 (111, 121, "Old Trafford, Manchester, England"                , 6, 15, 2025, 2, 1),
 (235, 121, "Banc of California Stadium, Los Angeles, CA, USA" , 7, 5, 2025, 3, 2),
@@ -74,28 +74,27 @@ INSERT INTO Game(HomeTeam, AwayTeam, Location, Month, Day, Year, HomeScore, Away
 (235, 111, "Banc of California Stadium, Los Angeles, CA, USA" , 9, 1, 2025, 2, 2),
 (111, 235, "Old Trafford, Manchester, England"                , 10, 7, 2025, 1, 0),
 (121, 235, "Santiago Bernabéu Stadium, Madrid, Spain"         , 11, 3, 2025, 3, 1),
-(111, 121, "Wembley Stadium, London, England"                 , 11, 28, 2025, 2, 2),
-(235, 121, "Rose Bowl Stadium, Pasadena, CA, USA"             , 12, 12, 2025, 4, 3),
-(121, 111, "Eestadio Metropolitano, Madrid, Spain"             , 1, 10, 2026, 3, 2),
-(235, 111, "Levi's Stadium, Santa Clara, CA, USA"             , 2, 18, 2026, 1, 1);
+(111, 121, "Wembley Stadium, London, England"                 , 11, 28, 2025, 0, 0),
+(235, 121, "Rose Bowl Stadium, Pasadena, CA, USA"             , 12, 12, 2025, 0, 0),
+(121, 111, "Eestadio Metropolitano, Madrid, Spain"             , 1, 10, 2026, 0, 0),
+(235, 111, "Levi's Stadium, Santa Clara, CA, USA"             , 2, 18, 2026, 0, 0);
 
-CREATE TABLE Coach
-(
-  ID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE Coach (
+  ID INT UNSIGNED PRIMARY KEY, 
   TeamID INT UNSIGNED,
   FirstName VARCHAR(100),
   LastName VARCHAR(100),
-
   FOREIGN KEY (TeamID) REFERENCES Team(ID)
 );
 
-INSERT INTO Coach (TeamID, FirstName, LastName) VALUES
-(235,"Frederick", "Moore"),
-(235,"Benjamin", "Parker"),
-(111, "Elijah", "Carter"),
-(121,"Dominic", "Reed"),
-(121,"Christopher", "Hill"),
-(121,"121Alexander,", "Mason");
+--hardcoded Coach.ID
+INSERT INTO Coach (ID, TeamID, FirstName, LastName) VALUES
+(500, 235, "Frederick", "Moore"),
+(501, 235, "Benjamin", "Parker"),
+(502, 111, "Elijah", "Carter"),
+(503, 121, "Dominic", "Reed"),
+(504, 121, "Christopher", "Hill"),
+(505, 121, "Alexander", "Mason");
 
 CREATE TABLE Player (
   ID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
