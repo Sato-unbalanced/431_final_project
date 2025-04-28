@@ -31,6 +31,45 @@ $gameQuery = "
     ORDER BY Year, Month, Day
 ";
 $gameResult = $db->query($gameQuery);
+
+// Query for Top Team (most wins, excluding TBA games)
+$topTeamQuery = "
+    SELECT Team.Name, COUNT(*) AS Wins
+    FROM (
+        SELECT HomeTeam AS TeamID
+        FROM Game
+        WHERE HomeScore > AwayScore AND HomeScore != 0 AND AwayScore != 0
+        UNION ALL
+        SELECT AwayTeam AS TeamID
+        FROM Game
+        WHERE AwayScore > HomeScore AND HomeScore != 0 AND AwayScore != 0
+    ) AS WinningTeams
+    JOIN Team ON WinningTeams.TeamID = Team.ID
+    GROUP BY Team.Name
+    ORDER BY Wins DESC
+    LIMIT 1
+";
+$topTeamResult = $db->query($topTeamQuery);
+$topTeam = $topTeamResult ? $topTeamResult->fetch_assoc() : null;
+
+// Query for Coaches list
+$coachQuery = "
+    SELECT Coach.FirstName, Coach.LastName, Team.Name AS TeamName
+    FROM Coach
+    JOIN Team ON Coach.TeamID = Team.ID
+";
+$coachResult = $db->query($coachQuery);
+
+// Query for most common match location
+$locationQuery = "
+    SELECT Location, COUNT(*) AS GamesPlayed
+    FROM Game
+    GROUP BY Location
+    ORDER BY GamesPlayed DESC
+    LIMIT 1
+";
+$locationResult = $db->query($locationQuery);
+$topLocation = $locationResult ? $locationResult->fetch_assoc() : null;
 ?>
 
 <!DOCTYPE html>
@@ -49,64 +88,78 @@ $gameResult = $db->query($gameQuery);
 </head>
 <body>
 
-  <div class="box">
-    <h2>Teams</h2>
-    <?php if ($teamResult && $teamResult->num_rows > 0): ?>
-      <table>
-        <tr><th>Team Name</th></tr>
-        <?php while ($team = $teamResult->fetch_assoc()): ?>
-          <tr><td><?= htmlspecialchars($team['Name']) ?></td></tr>
-        <?php endwhile; ?>
-      </table>
-    <?php else: ?>
-      <p>No teams found.</p>
-    <?php endif; ?>
-  </div>
+<div class="box">
+  <h2>Teams</h2>
+  <?php if ($teamResult && $teamResult->num_rows > 0): ?>
+    <table>
+      <tr><th>Team Name</th></tr>
+      <?php while ($team = $teamResult->fetch_assoc()): ?>
+        <tr><td><?= htmlspecialchars($team['Name']) ?></td></tr>
+      <?php endwhile; ?>
+    </table>
+  <?php else: ?>
+    <p>No teams found.</p>
+  <?php endif; ?>
+</div>
 
-  <div class="box">
-    <h2>Schedule of Games</h2> 
-    <?php if ($gameResult && $gameResult->num_rows > 0): ?>
-      <table>
+<div class="box">
+  <h2>Schedule of Games</h2> 
+  <?php if ($gameResult && $gameResult->num_rows > 0): ?>
+    <table>
+      <tr>
+        <th>Date</th>
+        <th>Home Team</th>
+        <th>Home Score</th>
+        <th>Away Team</th>
+        <th>Away Score</th>
+        <th>Location</th>
+      </tr>
+      <?php while ($game = $gameResult->fetch_assoc()): ?>
         <tr>
-          <th>Date</th>
-          <th>Home Team</th>
-          <th>Home Score</th>
-          <th>Away Team</th>
-          <th>Away Score</th>
-          <th>Location</th>
+          <td><?= htmlspecialchars(sprintf("%02d/%02d/%04d", $game['Month'], $game['Day'], $game['Year'])) ?></td>
+          <td><?= htmlspecialchars($game['HomeTeam']) ?></td>
+          <td><?= ($game['HomeScore'] == 0 && $game['AwayScore'] == 0) ? "TBA" : htmlspecialchars($game['HomeScore']) ?></td>
+          <td><?= htmlspecialchars($game['AwayTeam']) ?></td>
+          <td><?= ($game['HomeScore'] == 0 && $game['AwayScore'] == 0) ? "TBA" : htmlspecialchars($game['AwayScore']) ?></td>
+          <td><?= htmlspecialchars($game['Location']) ?></td>
         </tr>
-        <?php while ($game = $gameResult->fetch_assoc()): ?>
-          <tr>
-            <!-- Check for 0, 0 scores to assign a TBA status -->
-            <td><?= htmlspecialchars(sprintf("%02d/%02d/%04d", $game['Month'], $game['Day'], $game['Year'])) ?></td>
-            <td><?= htmlspecialchars($game['HomeTeam']) ?></td>
-            <td>
-              <?php 
-              if ($game['HomeScore'] == 0 && $game['AwayScore'] == 0) {
-                  echo "TBA"; 
-              } else {
-                  echo htmlspecialchars($game['HomeScore']);
-              }
-              ?>
-            </td>
-            <td><?= htmlspecialchars($game['AwayTeam']) ?></td>
-            <td>
-              <?php 
-              if ($game['HomeScore'] == 0 && $game['AwayScore'] == 0) {
-                  echo "TBA"; 
-              } else {
-                  echo htmlspecialchars($game['AwayScore']);
-              }
-              ?>
-            </td>
-            <td><?= htmlspecialchars($game['Location']) ?></td>
-          </tr>
-        <?php endwhile; ?>
-      </table>
-    <?php else: ?>
-      <p>No games scheduled.</p>
-    <?php endif; ?>
-  </div>
+      <?php endwhile; ?>
+    </table>
+  <?php else: ?>
+    <p>No games scheduled.</p>
+  <?php endif; ?>
+</div>
+
+<!-- Game Statistics -->
+<div class="box">
+  <h2>Game Statistics</h2>
+
+  <h3>Top Team:</h3>
+  <?php if ($topTeam): ?>
+    <p><strong><?= htmlspecialchars($topTeam['Name']) ?></strong> with <?= htmlspecialchars($topTeam['Wins']) ?> win(s)</p>
+  <?php else: ?>
+    <p>No games completed yet to determine top team.</p>
+  <?php endif; ?>
+
+  <h3>Coaches and Their Teams:</h3>
+  <?php if ($coachResult && $coachResult->num_rows > 0): ?>
+    <ul>
+      <?php while ($coach = $coachResult->fetch_assoc()): ?>
+        <li><?= htmlspecialchars($coach['FirstName']) . " " . htmlspecialchars($coach['LastName']) ?> - <?= htmlspecialchars($coach['TeamName']) ?></li>
+      <?php endwhile; ?>
+    </ul>
+  <?php else: ?>
+    <p>No coaches found.</p>
+  <?php endif; ?>
+
+  <h3>Most Common Match Location:</h3>
+  <?php if ($topLocation): ?>
+    <p><strong><?= htmlspecialchars($topLocation['Location']) ?></strong> with <?= htmlspecialchars($topLocation['GamesPlayed']) ?> games hosted.</p>
+  <?php else: ?>
+    <p>No match locations available.</p>
+  <?php endif; ?>
+
+</div>
 
 </body>
 </html>
