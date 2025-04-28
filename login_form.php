@@ -67,17 +67,6 @@
         <input type="password" name="password" id="password" required minlength="6" maxlength="16">
       </div>
 
-      <!-- Role dropdown corresponds/works with the role table in DB (ID_Role) -->
-      <div class="form-group">
-        <label for="role">Role:</label>
-        <select name="role" id="role" required>
-          <option value="" disabled selected>Select role</option>
-          <option value="Player">Player</option>
-          <option value="Coach">Coach</option>
-          <option value="Manager">Manager</option>
-        </select>
-      </div>
-
       <!-- Button optons-  Login, go to register form, or continue as Guest -->
       <div class="button-group">
         <button type="submit">Login</button>

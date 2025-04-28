@@ -1,16 +1,11 @@
 <?php
-// register_user.php
-// Dispaly Registration form – Secure input collection/handling & error display. Reference Ch.27
-// registering a user flow: register_user.php -> process_signup.php -> signup_success.php
-require_once('config.php');         // Project path constants
-require_once('Adaptation.php');     // DB connection settings
-session_start();                    // Start session (Ch. 16)
+require_once('config.php');
+require_once('Adaptation.php');
+session_start();
 
-// Retrieve input values and validation errors
 $preserve = $_SESSION['signup_preserve'] ?? [];
 $errors = $_SESSION['signup_errors'] ?? [];
 
-// Clear session flash data after reading (Ch. 16 – session cleanup pattern)
 unset($_SESSION['signup_preserve']);
 unset($_SESSION['signup_errors']);
 ?>
@@ -57,12 +52,41 @@ unset($_SESSION['signup_errors']);
       margin-bottom: 0.5rem;
     }
   </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const roleSelect = document.getElementById('role');
+      const idField = document.getElementById('idField');
+      const idLabel = document.getElementById('idLabel');
+      const idInput = document.getElementById('id');
+
+      function toggleIdField() {
+        const role = roleSelect.value;
+        if (role === 'Player') {
+          idField.style.display = 'block';
+          idLabel.textContent = 'Enter Player ID (must exist in system):';
+          idInput.required = true;
+        } else if (role === 'Coach') {
+          idField.style.display = 'block';
+          idLabel.textContent = 'Enter Coach ID (must exist in system):';
+          idInput.required = true;
+        } else {
+          idField.style.display = 'none';
+          idLabel.textContent = '';
+          idInput.required = false;
+        }
+      }
+
+      roleSelect.addEventListener('change', toggleIdField);
+      toggleIdField(); // Initial check on page load
+    });
+  </script>
 </head>
+
 <body>
   <div class="register-box">
     <h2>Create an Account</h2>
 
-    <!-- Display form validation errors passed via session -->
     <?php if (!empty($errors)): ?>
       <div class="error">
         <ul>
@@ -73,7 +97,6 @@ unset($_SESSION['signup_errors']);
       </div>
     <?php endif; ?>
 
-    <!-- Registration form submits to process_signup.php (Ref-Ch. 27 secure input validation) -->
     <form action="process_signup.php" method="POST">
       <div class="form-group">
         <label for="username">Username (Required, Unique):</label>
@@ -82,15 +105,9 @@ unset($_SESSION['signup_errors']);
       </div>
 
       <div class="form-group">
-        <label for="id">Player OR Coach ID (must exist in system):</label>
-        <input type="number" id="id" name="id" required
-              value="<?= htmlspecialchars($preserve['id'] ?? '') ?>">
-      </div>
-
-      <div class="form-group">
         <label for="name">First and Last Name:</label>
         <input type="text" id="name" name="name" required
-              value="<?= htmlspecialchars($preserve['name'] ?? '') ?>">
+               value="<?= htmlspecialchars($preserve['name'] ?? '') ?>">
       </div>
 
       <div class="form-group">
@@ -117,6 +134,12 @@ unset($_SESSION['signup_errors']);
           <option value="Coach"  <?= ($preserve['role'] ?? '') === 'Coach'  ? 'selected' : '' ?>>Coach</option>
           <option value="Manager"<?= ($preserve['role'] ?? '') === 'Manager'? 'selected' : '' ?>>Manager</option>
         </select>
+      </div>
+
+      <div class="form-group" id="idField">
+        <label for="id" id="idLabel"></label>
+        <input type="number" id="id" name="id"
+               value="<?= htmlspecialchars($preserve['id'] ?? '') ?>">
       </div>
 
       <button type="submit">Register</button>

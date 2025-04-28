@@ -220,21 +220,6 @@ GRANT SELECT ON Game to Player@localhost;
 GRANT SELECT ON Team to Player@localhost;
 GRANT SELECT ON Statistics to Player@localhost;
 
---GRANT SELECT, INSERT ON UserLogin to phpWebEngine@localhost IDENTIFIED by '!_phpWebEngine';
---GRANT SELECT, INSERT ON Roles to phpWebEngine@localhost IDENTIFIED by '!_phpWebEngine';
-
-
--- Create DB users and assign passwords? 
---CREATE USER 'Guest'@'localhost' IDENTIFIED BY 'Password0';
---CREATE USER 'Player'@'localhost' IDENTIFIED BY 'Password1';
---CREATE USER 'Coach'@'localhost' IDENTIFIED BY 'Password2';
---CREATE USER 'Manager'@'localhost' IDENTIFIED BY 'Password3';
-
--- Grant permissions per role?
---GRANT SELECT ON SportsTeam.* TO 'Guest'@'localhost';
---GRANT SELECT, INSERT, UPDATE ON SportsTeam.* TO 'Player'@'localhost';
---GRANT SELECT, INSERT, UPDATE, DELETE ON SportsTeam.* TO 'Coach'@'localhost';
---GRANT ALL PRIVILEGES ON SportsTeam.* TO 'Manager'@'localhost';
 
 CREATE TABLE IF NOT EXISTS PasswordReset (
   ID INT AUTO_INCREMENT PRIMARY KEY,
