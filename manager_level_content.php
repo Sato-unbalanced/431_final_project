@@ -9,8 +9,7 @@ if ($db->connect_errno !== 0) {
     die("Database connection failed: " . $db->connect_error);
 }
 
-// Include no_level_content.php
-require_once('no_level_content.php');
+
 
 // --- Handle Enter Game Results ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enter_result'])) {
@@ -21,6 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enter_result'])) {
     $updateResult = $db->prepare("UPDATE Game SET HomeScore = ?, AwayScore = ? WHERE ID = ?");
     $updateResult->bind_param('iii', $homeScore, $awayScore, $gameID);
     $updateResult->execute();
+
+    header("Location: manager_level_content.php");
+    exit;
 }
 
 // --- Handle Add Game ---
@@ -35,6 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_game'])) {
     $addGame = $db->prepare("INSERT INTO Game (Location, Month, Day, Year, HomeTeam, AwayTeam, HomeScore, AwayScore) VALUES (?, ?, ?, ?, ?, ?, 0, 0)");
     $addGame->bind_param('siiiii', $location, $month, $day, $year, $homeTeam, $awayTeam);
     $addGame->execute();
+
+    header("Location: manager_level_content.php");
+    exit;
 }
 
 // --- Handle Delete Game ---
@@ -43,6 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_game'])) {
     $deleteGame = $db->prepare("DELETE FROM Game WHERE ID = ?");
     $deleteGame->bind_param('i', $gameID);
     $deleteGame->execute();
+
+    header("Location: manager_level_content.php");
+    exit;
 }
 
 // --- Handle Add Coach ---
@@ -55,6 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_coach'])) {
     $addCoach = $db->prepare("INSERT INTO Coach (ID, TeamID, FirstName, LastName) VALUES (?, ?, ?, ?)");
     $addCoach->bind_param('iiss', $coachID, $teamID, $firstName, $lastName);
     $addCoach->execute();
+
+    header("Location: manager_level_content.php");
+    exit;
 }
 
 // --- Handle Delete Coach ---
@@ -63,6 +74,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_coach'])) {
     $deleteCoach = $db->prepare("DELETE FROM Coach WHERE ID = ?");
     $deleteCoach->bind_param('i', $coachID);
     $deleteCoach->execute();
+
+    header("Location: manager_level_content.php");
+    exit;
 }
 
 // --- Handle Update Coach ---
@@ -75,14 +89,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_coach'])) {
     $updateCoach = $db->prepare("UPDATE Coach SET TeamID = ?, FirstName = ?, LastName = ? WHERE ID = ?");
     $updateCoach->bind_param('issi', $teamID, $firstName, $lastName, $coachID);
     $updateCoach->execute();
+
+    header("Location: manager_level_content.php");
+    exit;
 }
 
 // --- Handle Add Team ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_team'])) {
+    $teamID = intval($_POST['team_id']);
     $teamName = trim($_POST['team_name']);
-    $addTeam = $db->prepare("INSERT INTO Team (Name) VALUES (?)");
-    $addTeam->bind_param('s', $teamName);
+    $addTeam = $db->prepare("INSERT INTO Team (ID, Name) VALUES (?, ?)");
+    $addTeam->bind_param('is', $teamID, $teamName);
     $addTeam->execute();
+
+    header("Location: manager_level_content.php");
+    exit;
 }
 
 // --- Handle Delete Team ---
@@ -91,6 +112,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_team'])) {
     $deleteTeam = $db->prepare("DELETE FROM Team WHERE ID = ?");
     $deleteTeam->bind_param('i', $teamID);
     $deleteTeam->execute();
+
+    header("Location: manager_level_content.php");
+    exit;
 }
 
 // --- Handle Update Team ---
@@ -100,6 +124,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_team'])) {
     $updateTeam = $db->prepare("UPDATE Team SET Name = ? WHERE ID = ?");
     $updateTeam->bind_param('si', $teamName, $teamID);
     $updateTeam->execute();
+
+    header("Location: manager_level_content.php");
+    exit;
 }
 
 // --- Fetch all games with TBA scores (for Enter Results dropdown) ---
@@ -145,6 +172,64 @@ $standings = $db->query("
     LEFT JOIN Game ON Game.HomeTeam = Team.ID OR Game.AwayTeam = Team.ID
     GROUP BY Team.ID
 ");
+
+// Query for team names
+$teamQuery = "SELECT Name FROM Team";
+$teamResult = $db->query($teamQuery);
+
+// Query for schedule of games including scores
+$gameQuery = "
+    SELECT 
+        t1.Name AS HomeTeam, 
+        t2.Name AS AwayTeam, 
+        Location, 
+        Month, Day, Year, 
+        HomeScore, AwayScore
+    FROM Game
+    JOIN Team t1 ON Game.HomeTeam = t1.ID
+    JOIN Team t2 ON Game.AwayTeam = t2.ID
+    ORDER BY Year, Month, Day
+";
+$gameResult = $db->query($gameQuery);
+
+// Query for Top Team (most wins, excluding TBA games)
+$topTeamQuery = "
+    SELECT Team.Name, COUNT(*) AS Wins
+    FROM (
+        SELECT HomeTeam AS TeamID
+        FROM Game
+        WHERE HomeScore > AwayScore AND HomeScore != 0 AND AwayScore != 0
+        UNION ALL
+        SELECT AwayTeam AS TeamID
+        FROM Game
+        WHERE AwayScore > HomeScore AND HomeScore != 0 AND AwayScore != 0
+    ) AS WinningTeams
+    JOIN Team ON WinningTeams.TeamID = Team.ID
+    GROUP BY Team.Name
+    ORDER BY Wins DESC
+    LIMIT 1
+";
+$topTeamResult = $db->query($topTeamQuery);
+$topTeam = $topTeamResult ? $topTeamResult->fetch_assoc() : null;
+
+// Query for Coaches list
+$coachQuery = "
+    SELECT Coach.FirstName, Coach.LastName, Team.Name AS TeamName
+    FROM Coach
+    JOIN Team ON Coach.TeamID = Team.ID
+";
+$coachResult = $db->query($coachQuery);
+
+// Query for most common match location
+$locationQuery = "
+    SELECT Location, COUNT(*) AS GamesPlayed
+    FROM Game
+    GROUP BY Location
+    ORDER BY GamesPlayed DESC
+    LIMIT 1
+";
+$locationResult = $db->query($locationQuery);
+$topLocation = $locationResult ? $locationResult->fetch_assoc() : null;
 ?>
 
 <!DOCTYPE html>
@@ -168,6 +253,84 @@ $standings = $db->query("
   </style>
 </head>
 <body>
+
+<!-- need to figure out manager permissions --> 
+<div class="box">
+  <h2>Welcome, Manager</h2>
+</div>
+
+<div class="box">
+  <h2>Teams</h2>
+  <?php if ($teamResult && $teamResult->num_rows > 0): ?>
+    <table>
+      <tr><th>Team Name</th></tr>
+      <?php while ($team = $teamResult->fetch_assoc()): ?>
+        <tr><td><?= htmlspecialchars($team['Name']) ?></td></tr>
+      <?php endwhile; ?>
+    </table>
+  <?php else: ?>
+    <p>No teams found.</p>
+  <?php endif; ?>
+</div>
+
+<div class="box">
+  <h2>Schedule of Games</h2> 
+  <?php if ($gameResult && $gameResult->num_rows > 0): ?>
+    <table>
+      <tr>
+        <th>Date</th>
+        <th>Home Team</th>
+        <th>Home Score</th>
+        <th>Away Team</th>
+        <th>Away Score</th>
+        <th>Location</th>
+      </tr>
+      <?php while ($game = $gameResult->fetch_assoc()): ?>
+        <tr>
+          <td><?= htmlspecialchars(sprintf("%02d/%02d/%04d", $game['Month'], $game['Day'], $game['Year'])) ?></td>
+          <td><?= htmlspecialchars($game['HomeTeam']) ?></td>
+          <td><?= ($game['HomeScore'] == 0 && $game['AwayScore'] == 0) ? "TBA" : htmlspecialchars($game['HomeScore']) ?></td>
+          <td><?= htmlspecialchars($game['AwayTeam']) ?></td>
+          <td><?= ($game['HomeScore'] == 0 && $game['AwayScore'] == 0) ? "TBA" : htmlspecialchars($game['AwayScore']) ?></td>
+          <td><?= htmlspecialchars($game['Location']) ?></td>
+        </tr>
+      <?php endwhile; ?>
+    </table>
+  <?php else: ?>
+    <p>No games scheduled.</p>
+  <?php endif; ?>
+</div>
+
+<!-- Game Statistics -->
+<div class="box">
+  <h2>Game Statistics</h2>
+
+  <h3>Top Team:</h3>
+  <?php if ($topTeam): ?>
+    <p><strong><?= htmlspecialchars($topTeam['Name']) ?></strong> with <?= htmlspecialchars($topTeam['Wins']) ?> win(s)</p>
+  <?php else: ?>
+    <p>No games completed yet to determine top team.</p>
+  <?php endif; ?>
+
+  <h3>Coaches and Their Teams:</h3>
+  <?php if ($coachResult && $coachResult->num_rows > 0): ?>
+    <ul>
+      <?php while ($coach = $coachResult->fetch_assoc()): ?>
+        <li><?= htmlspecialchars($coach['FirstName']) . " " . htmlspecialchars($coach['LastName']) ?> - <?= htmlspecialchars($coach['TeamName']) ?></li>
+      <?php endwhile; ?>
+    </ul>
+  <?php else: ?>
+    <p>No coaches found.</p>
+  <?php endif; ?>
+
+  <h3>Most Common Match Location:</h3>
+  <?php if ($topLocation): ?>
+    <p><strong><?= htmlspecialchars($topLocation['Location']) ?></strong> with <?= htmlspecialchars($topLocation['GamesPlayed']) ?> games hosted.</p>
+  <?php else: ?>
+    <p>No match locations available.</p>
+  <?php endif; ?>
+
+</div>
 
 <!-- Enter Game Results -->
 <div class="box">
@@ -214,9 +377,12 @@ $standings = $db->query("
     </tr>
     <?php endwhile; ?>
   </table>
-  <!-- Add New Game Form -->
-<h3 style="text-align:center;">Add New Game</h3>
-<form method="POST">
+  <?php else: ?>
+    <p>No upcoming games found.</p>
+  <?php endif; ?>
+
+  <h3 style="text-align:center;">Add New Game</h3>
+  <form method="POST">
     <input type="text" name="location" placeholder="Location" required>
     <input type="number" name="month" placeholder="Month (1-12)" min="1" max="12" required>
     <input type="number" name="day" placeholder="Day (1-31)" min="1" max="31" required>
@@ -224,11 +390,9 @@ $standings = $db->query("
     <input type="number" name="home_team" placeholder="Home Team ID" required>
     <input type="number" name="away_team" placeholder="Away Team ID" required>
     <input type="submit" name="add_game" value="Add Game">
-</form>
-  <?php else: ?>
-    <p>No upcoming games found.</p>
-  <?php endif; ?>
+  </form>
 </div>
+
 
 <!-- Full Team Standings -->
 <div class="box">
@@ -255,6 +419,7 @@ $standings = $db->query("
 
   <h3>Add New Team</h3>
   <form method="POST">
+    <input type="text" name="team_id" placeholder = "Team ID" required>
     <input type="text" name="team_name" placeholder="Team Name" required>
     <input type="submit" name="add_team" value="Add Team">
   </form>
@@ -330,13 +495,24 @@ $standings = $db->query("
 
   <h3>Update Coach</h3>
   <form method="POST">
-    <input type="number" name="update_coach_id" placeholder="Coach ID" required>
+    <select name="update_coach_id" required>
+      <option value="">Select Coach</option>
+      <?php
+      // Re-query coach list if not already available
+      $coachList = $db->query("SELECT ID, FirstName, LastName FROM Coach");
+      while ($row = $coachList->fetch_assoc()):
+      ?>
+        <option value="<?= $row['ID'] ?>">
+          <?= htmlspecialchars($row['FirstName'] . ' ' . $row['LastName']) ?> (ID: <?= $row['ID'] ?>)
+        </option>
+      <?php endwhile; ?>
+    </select>
+
     <input type="text" name="update_first_name" placeholder="New First Name" required>
     <input type="text" name="update_last_name" placeholder="New Last Name" required>
     <input type="number" name="update_team_id" placeholder="New Team ID" required>
     <input type="submit" name="update_coach" value="Update Coach">
   </form>
-</div>
 
 </body>
 </html>
