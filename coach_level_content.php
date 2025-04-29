@@ -62,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     // add player form --------------------------------------------
     if (isset($_POST['add_player'])) {
+        $newID        = trim($_POST['new_id']);
         $newFirstName = trim($_POST['new_first_name']);
         $newLastName  = trim($_POST['new_last_name']);
         $newStreet    = trim($_POST['new_street']);
@@ -71,10 +72,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $newZipcode   = trim($_POST['new_zipcode']);
 
         $insert = $db->prepare("
-            INSERT INTO Player (TeamID, FirstName, LastName, Street, City, State, Country, Zipcode)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO Player (TeamID, ID, FirstName, LastName, Street, City, State, Country, Zipcode)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
-        $insert->bind_param('isssssss', $coachTeamID, $newFirstName, $newLastName, $newStreet, $newCity, $newState, $newCountry, $newZipcode);
+        $insert->bind_param('issssssss', $coachTeamID, $newID, $newFirstName, $newLastName, $newStreet, $newCity, $newState, $newCountry, $newZipcode);
         $insert->execute();
     }
     // delete player button ---------------------------------------
@@ -181,6 +182,7 @@ $gameResult = $games->get_result();
   <!-- Add Player Form -->
   <h3 style="text-align:center;">Add New Player</h3>
   <form method="POST">
+    <input type="text" name="new_id" placeholder="ID" required>
     <input type="text" name="new_first_name" placeholder="First Name" required>
     <input type="text" name="new_last_name" placeholder="Last Name" required>
     <input type="text" name="new_street" placeholder="Street" required>
