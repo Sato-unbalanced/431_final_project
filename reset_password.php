@@ -87,16 +87,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     body {
       font-family: Arial, sans-serif;
       padding: 2rem;
-      background-color: #f4f4f4;
+      background-color: #d9f7db;
     }
     .container {
       background: white;
-      max-width: 400px;
+      max-width: 450px;
       margin: 2rem auto;
       padding: 2rem;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
+
+    .container h2 {
+    font-size: 1.5rem;  
+    text-align: center; 
+    }
+
+    .container p {
+    text-align: center; 
+    font-size: 1rem;
+    }
+
     input[type="email"], button {
       width: 100%;
       padding: 0.75rem;
@@ -117,7 +128,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <body>
 <div class="container">
     <h2>Reset Your Password</h2>
-
+    <p><strong>We will send you a <span style="text-decoration: underline;">one-time-use</span> password to your registered email. </strong></p>
+    <p><strong> This will be needed to create a new password.</strong></p>
     <?php if (!empty($error)): ?>
       <div class="error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
