@@ -19,7 +19,8 @@ session_destroy();
 <body>
   <div class="message-box">
     <h2>You’ve been logged out.</h2>
-    <p>Thank you for using the Soccer Team portal.</p>
+    <p>Thank you for using the Soccer portal!</p>
+    <p>See you next time. </p>
     <p><a href="login_form.php">Log back in</a></p>
   </div>
 </body>
