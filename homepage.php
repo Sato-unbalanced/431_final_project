@@ -9,6 +9,7 @@
   <title>Welcome to SoccerBase DB</title>
   <style>
     body {
+      /* pulled a checkboard pattern */
       font-family: Arial, sans-serif;
       background: 
         repeating-linear-gradient(
@@ -76,8 +77,9 @@
 <body>
   <div class="container">
     <h1>⚽ Welcome to SoccerDB ⚽</h1>
-    <p>Hello! View the dashboard for viewing games or match statistics!</p>
+    <p>Hello! Log on to the dashboard for viewing games or match statistics!</p>
     <p>If you are a player or coach, login to manage your team and players.</p>
+    <p>Continue on as a guest to view the schedule and match results. </p>
     <a class="login-btn" href="login_form.php">Log In</a>
   </div>
 </body>
