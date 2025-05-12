@@ -87,7 +87,7 @@ CREATE TABLE Coach (
   FOREIGN KEY (TeamID) REFERENCES Team(ID)
 );
 
---hardcoded Coach.ID
+
 INSERT INTO Coach (ID, TeamID, FirstName, LastName) VALUES
 (500, 235, "Frederick", "Moore"),
 (501, 235, "Benjamin", "Parker"),
@@ -98,7 +98,7 @@ INSERT INTO Coach (ID, TeamID, FirstName, LastName) VALUES
 
 CREATE TABLE Player (
   ID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  TeamID INT UNSIGNED,
+  TeamID INT UNSIGNED DEFAULT NULL,
   FirstName VARCHAR (25),
   LastName VARCHAR (25),
   Street VARCHAR (250),
@@ -107,8 +107,11 @@ CREATE TABLE Player (
   Country VARCHAR(100) NOT NULL,
   Zipcode VARCHAR(10),
 
+-- allows null TeamIDs AND if a players team is deleted, their TeamIDs will be set to null
   FOREIGN KEY (TeamID) REFERENCES Team(ID)
+    ON DELETE SET NULL
 );
+
 
 INSERT INTO Player(ID, TeamID,FirstName, LastName, Street, City, State, Country, Zipcode) VALUES
 (143, 235,"James", "Anderson", "123 Oak Lane", "Santa Ana", "CA", "USA", 92701),  
@@ -220,6 +223,21 @@ GRANT SELECT ON Game to Player@localhost;
 GRANT SELECT ON Team to Player@localhost;
 GRANT SELECT ON Statistics to Player@localhost;
 
+--GRANT SELECT, INSERT ON UserLogin to phpWebEngine@localhost IDENTIFIED by '!_phpWebEngine';
+--GRANT SELECT, INSERT ON Roles to phpWebEngine@localhost IDENTIFIED by '!_phpWebEngine';
+
+
+-- Create DB users and assign passwords? 
+--CREATE USER 'Guest'@'localhost' IDENTIFIED BY 'Password0';
+--CREATE USER 'Player'@'localhost' IDENTIFIED BY 'Password1';
+--CREATE USER 'Coach'@'localhost' IDENTIFIED BY 'Password2';
+--CREATE USER 'Manager'@'localhost' IDENTIFIED BY 'Password3';
+
+-- Grant permissions per role?
+--GRANT SELECT ON SportsTeam.* TO 'Guest'@'localhost';
+--GRANT SELECT, INSERT, UPDATE ON SportsTeam.* TO 'Player'@'localhost';
+--GRANT SELECT, INSERT, UPDATE, DELETE ON SportsTeam.* TO 'Coach'@'localhost';
+--GRANT ALL PRIVILEGES ON SportsTeam.* TO 'Manager'@'localhost';
 
 CREATE TABLE IF NOT EXISTS PasswordReset (
   ID INT AUTO_INCREMENT PRIMARY KEY,
