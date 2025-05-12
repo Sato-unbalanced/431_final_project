@@ -17,13 +17,15 @@ $currentUserName = $_SESSION['UserName'] ?? '';
 
 // UserLogin.UserName -> Player.ID -> Player.TeamID -> Team.Name
 // Join UserLogin to Player to Team to get current user's team and personal info
+// if player TeamID = null, display nothing 
 $stmt = $db->prepare("
     SELECT Player.ID, Player.FirstName, Player.LastName, Player.TeamID, Team.Name AS TeamName
     FROM UserLogin
     JOIN Player ON UserLogin.ID = Player.ID
-    JOIN Team ON Player.TeamID = Team.ID
+    LEFT JOIN Team ON Player.TeamID = Team.ID
     WHERE UserLogin.UserName = ?
 ");
+
 $stmt->bind_param('s', $currentUserName);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -147,7 +149,12 @@ $gameResult = $gameQuery->get_result();
 </div>
 
 <div class="box">
+<?php if ($playerTeamName): ?>
   <h2>My Team, <?= htmlspecialchars($playerTeamName) ?></h2>
+<?php else: ?>
+  <h2 style="color: #b00; text-align:center;">You are not assigned to a team</h2>
+<?php endif; ?>
+
 
   <?php if (!empty($updateMessage)) echo $updateMessage; ?>
 
