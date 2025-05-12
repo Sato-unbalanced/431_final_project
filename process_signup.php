@@ -88,6 +88,22 @@ if ($roleResult->num_rows !== 1) {
     $errors[] = "Invalid role selected.";
 }
 
+// Restrict to only one Manager account
+// Manager creates coach and their coachID. coach creates players their playerID
+// Only one manager can exist, no one else can sign up as a manager if one already exists
+// When managers create an account, they can assign themselves any ID
+if ($role === "Manager") {
+    $checkManager = $db->prepare("SELECT COUNT(*) FROM UserLogin WHERE Role = 4");
+    $checkManager->execute();
+    $checkManager->bind_result($managerCount);
+    $checkManager->fetch();
+    if ($managerCount > 0) {
+        $errors[] = "A Manager account already exists. Only one is allowed.";
+    }
+    $checkManager->close();
+}
+
+
 // Checking the players inserted into the Database
 // If the player does not exist, asks to double check their ID
 if ($role === "Player") {
