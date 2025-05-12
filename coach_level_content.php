@@ -59,6 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $update->bind_param('iiii', $playerID, $goals, $assists, $passes);
         }
         $update->execute();
+
+        
     }
     // add player form --------------------------------------------
     if (isset($_POST['add_player'])) {
@@ -78,14 +80,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $insert->bind_param('issssssss', $coachTeamID, $newID, $newFirstName, $newLastName, $newStreet, $newCity, $newState, $newCountry, $newZipcode);
         $insert->execute();
     }
-    // delete player button ---------------------------------------
-    if (isset($_POST['delete_player'])) {
-        $deletePlayerID = intval($_POST['delete_player_id']);
-
-        $delete = $db->prepare("DELETE FROM Player WHERE ID = ? AND TeamID = ?");
-        $delete->bind_param('ii', $deletePlayerID, $coachTeamID);
-        $delete->execute();
+    // remove player button ---------------------------------------
+    if (isset($_POST['remove_player'])) {
+      $removePlayerID = intval($_POST['remove_player_id']);
+  
+      $remove = $db->prepare("UPDATE Player SET TeamID = NULL WHERE ID = ? AND TeamID = ?");
+      $remove->bind_param('ii', $removePlayerID, $coachTeamID);
+      $remove->execute();
     }
+
+    // add free agent button -------------------------
+    if (isset($_POST['add_free_agent'])) {
+      $freeAgentID = intval($_POST['free_agent_id']);
+
+      $assign = $db->prepare("UPDATE Player SET TeamID = ? WHERE ID = ? AND TeamID IS NULL");
+      $assign->bind_param('ii', $coachTeamID, $freeAgentID);
+      $assign->execute();
+    }
+
+  
 }
 
 // --- Fetch data ---
@@ -121,6 +134,19 @@ $games = $db->prepare("
 $games->bind_param('ii', $coachTeamID, $coachTeamID);
 $games->execute();
 $gameResult = $games->get_result();
+
+// --- Fetch free agents (TeamID = 1) ---
+$freeAgentsStmt = $db->prepare("
+    SELECT ID, FirstName, LastName 
+    FROM Player 
+    WHERE TeamID IS NULL 
+    ORDER BY LastName ASC, FirstName ASC
+");
+
+
+$freeAgentsStmt->execute();
+$freeAgentsResult = $freeAgentsStmt->get_result();
+
 ?>
 
 <!DOCTYPE html>
@@ -193,10 +219,10 @@ $gameResult = $games->get_result();
     <input type="submit" name="add_player" value="Add Player">
   </form>
 
-  <!-- Delete Player Form -->
-  <h3 style="text-align:center;">Delete Player</h3>
+  <!-- remove player form --> 
+  <h3 style="text-align:center;">Remove Player From Team</h3>
   <form method="POST">
-    <select name="delete_player_id" required>
+    <select name="remove_player_id" required>
       <option value="">Select a Player</option>
       <?php
       $playerResult->data_seek(0);
@@ -207,8 +233,26 @@ $gameResult = $games->get_result();
         </option>
       <?php endwhile; ?>
     </select>
-    <input type="submit" name="delete_player" value="Delete Player">
+    <input type="submit" name="remove_player" value="Remove Player">
   </form>
+
+  <h3 style="text-align:center;">Add Free Agent to Team</h3>
+  <?php if ($freeAgentsResult && $freeAgentsResult->num_rows > 0): ?>
+    <form method="POST">
+      <select name="free_agent_id" required>
+        <option value="">Select a Free Agent</option>
+        <?php while ($free = $freeAgentsResult->fetch_assoc()): ?>
+          <option value="<?= $free['ID'] ?>">
+            <?= htmlspecialchars($free['FirstName']) . " " . htmlspecialchars($free['LastName']) ?>
+          </option>
+        <?php endwhile; ?>
+      </select>
+      <input type="submit" name="add_free_agent" value="Add Free Agent">
+    </form>
+  <?php else: ?>
+    <p style="text-align:center;">No free agents available to add.</p>
+  <?php endif; ?>
+
 
 </div>
 
