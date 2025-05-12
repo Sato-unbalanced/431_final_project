@@ -3,13 +3,15 @@ require_once('config.php');
 require_once('Adaptation.php');
 session_start();
 
+//retrives credential that were assigened from the role that the user has at a database level
+$database_username = $_SESSION['role_name'];
+$database_password = $_SESSION['role_password'];
+
 // Connect to DB
-$db = new mysqli(DATA_BASE_HOST, USER_NAME, USER_PASSWORD, DATA_BASE_NAME);
+$db = new mysqli(DATA_BASE_HOST, $database_username, $database_password, DATA_BASE_NAME);
 if ($db->connect_errno !== 0) {
     die("Database connection failed: " . $db->connect_error);
 }
-
-
 
 // --- Handle Enter Game Results ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enter_result'])) {

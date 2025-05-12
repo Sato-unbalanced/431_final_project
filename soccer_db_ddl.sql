@@ -198,8 +198,11 @@ INSERT INTO Statistics(PlayerID, Goals, Assists, Passes) VALUES
 (711, 28, 14, 155),  
 (870, 35, 18, 200); 
 
+
 CREATE OR REPLACE USER Guest@localhost IDENTIFIED by '' PASSWORD EXPIRE NEVER;
 GRANT SELECT ON Roles TO Guest@localhost;
+GRANT SELECT ON Player TO Guest@localhost;
+GRANT SELECT ON Coach TO Guest@localhost;
 GRANT SELECT ON UserLogin TO Guest@localhost;
 GRANT SELECT ON Game TO Guest@localhost;
 GRANT SELECT ON Statistics To Guest@localhost;
@@ -211,9 +214,14 @@ GRANT SELECT, INSERT, DELETE, UPDATE, EXECUTE ON *  to Manager@localhost;
 
 CREATE OR REPLACE USER Coach@localhost IDENTIFIED BY '!_coach_2_0_01' PASSWORD EXPIRE NEVER;
 GRANT SELECT, INSERT, UPDATE ON Team to Coach@localhost;
-GRANT SELECT, UPDATE ON  Player to Coach@localhost;
-GRANT SELECT ON Game to Coach@localhost;
-GRANT UPDATE (Day, Month, Year,Location) ON Game to Coach@localhost;
+GRANT SELECT, INSERT, UPDATE ON  Player to Coach@localhost;
+GRANT SELECT, UPDATE ON Game to Coach@localhost; 
+-- this upade was added 
+GRANT SELECT, INSERT, UPDATE ON Statistics to Coach@localhost;
+GRANT SELECT ON UserLogin TO Coach@localhost;
+
+
+-- GRANT UPDATE (Day, Month, Year,Location) ON Game to Coach@localhost;
 GRANT SELECT, UPDATE ON Coach to Coach@localhost;
 
 
@@ -222,22 +230,13 @@ GRANT SELECT, UPDATE ON Player to Player@localhost;
 GRANT SELECT ON Game to Player@localhost;
 GRANT SELECT ON Team to Player@localhost;
 GRANT SELECT ON Statistics to Player@localhost;
+GRANT SELECT ON UserLogin TO Coach@localhost;
 
---GRANT SELECT, INSERT ON UserLogin to phpWebEngine@localhost IDENTIFIED by '!_phpWebEngine';
---GRANT SELECT, INSERT ON Roles to phpWebEngine@localhost IDENTIFIED by '!_phpWebEngine';
+GRANT SELECT, INSERT ON UserLogin to phpWebEngine@localhost IDENTIFIED by '!_phpWebEngine';
+GRANT SELECT ON Roles to phpWebEngine@localhost IDENTIFIED by '!_phpWebEngine';
+GRANT SELECT ON Player to phpWebEngine@localhost IDENTIFIED by '!_phpWebEngine';
+GRANT SELECT ON Coach to phpWebEngine@localhost IDENTIFIED by '!_phpWebEngine';
 
-
--- Create DB users and assign passwords? 
---CREATE USER 'Guest'@'localhost' IDENTIFIED BY 'Password0';
---CREATE USER 'Player'@'localhost' IDENTIFIED BY 'Password1';
---CREATE USER 'Coach'@'localhost' IDENTIFIED BY 'Password2';
---CREATE USER 'Manager'@'localhost' IDENTIFIED BY 'Password3';
-
--- Grant permissions per role?
---GRANT SELECT ON SportsTeam.* TO 'Guest'@'localhost';
---GRANT SELECT, INSERT, UPDATE ON SportsTeam.* TO 'Player'@'localhost';
---GRANT SELECT, INSERT, UPDATE, DELETE ON SportsTeam.* TO 'Coach'@'localhost';
---GRANT ALL PRIVILEGES ON SportsTeam.* TO 'Manager'@'localhost';
 
 CREATE TABLE IF NOT EXISTS PasswordReset (
   ID INT AUTO_INCREMENT PRIMARY KEY,

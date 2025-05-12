@@ -9,6 +9,22 @@ define('DATA_BASE_HOST', 'localhost');
 define('USER_NAME',      'phpWebEngine');
 define('USER_PASSWORD',  '!_phpWebEngine');
 
+
+
+
+define('GUEST_ROLE_NAME', 'Guest');
+define('GUEST_ROLE_PASSWORD', '');
+
+define('Player_ROLE_NAME', 'Player');
+define('Player_ROLE_PASSWORD', '!_player_20_022_1');
+
+define('COACH_ROLE_NAME', 'Coach');
+define('COACH_ROLE_PASSWORD', '!_coach_2_0_01');
+
+define('MANGER_ROLE_NAME', 'Manager');
+define('MANGER_ROLE_PASSWORD', '!manger_0_0_1');
+
+
 // THROW ALL OF THIS VV into another file in the future. 
 //Actually do not throw into another file just yet - need to grant permissions to phpWebEngine in lampp
 //in order to work with the database for this project 

@@ -62,6 +62,29 @@ $role = htmlspecialchars($_SESSION['UserRole']);
 <h1 style="text-align: center;">Welcome to SFY Soccer Management Software</h1>
 
 <?php
+// this assigns user level credentials based on the output from database
+if (!isset($_SESSION["role_name"]) || !isset($_SESSION["role_password"]))
+{
+    switch ($role)
+    {
+        case "Player":
+            $_SESSION["role_name"] = Player_ROLE_NAME;
+            $_SESSION["role_password"] = Player_ROLE_PASSWORD;
+            break;
+        case "Coach":
+            $_SESSION["role_name"] = COACH_ROLE_NAME;
+            $_SESSION["role_password"] = COACH_ROLE_PASSWORD;
+            break;
+        case "Manager":
+            $_SESSION["role_name"] = MANGER_ROLE_NAME;
+            $_SESSION["role_password"] = MANGER_ROLE_PASSWORD;
+            break;
+        default:
+            $_SESSION["role_name"] = GUEST_ROLE_NAME;
+            $_SESSION["role_password"] = GUEST_ROLE_PASSWORD;
+            break;
+    }
+}
 // Only call appropriate role-specific page, which can itself call no_level_content.php inside
 if ($role === "Guest") {
     require_once("no_level_content.php"); 
