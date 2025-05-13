@@ -5,7 +5,6 @@ require_once('config.php');
 require_once('Adaptation.php');
 session_start(); // Needed for $_SESSION['UserName']
 require_once('no_level_content.php');
-
 //retrives credential that were assigened from the role that the user has at a database level
 $database_username = $_SESSION['role_name'];
 $database_password = $_SESSION['role_password'];

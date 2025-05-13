@@ -13,6 +13,7 @@ if ($db->connect_errno !== 0) {
     die("Database connection failed: " . $db->connect_error);
 }
 
+
 // --- Handle Enter Game Results ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enter_result'])) {
     $gameID = intval($_POST['result_game_id']);
@@ -233,7 +234,6 @@ $locationQuery = "
 $locationResult = $db->query($locationQuery);
 $topLocation = $locationResult ? $locationResult->fetch_assoc() : null;
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -333,6 +333,60 @@ $topLocation = $locationResult ? $locationResult->fetch_assoc() : null;
   <?php endif; ?>
 
 </div>
+
+<div class="box">
+      <form action="process_team_statistc.php" method="GET">
+        <table>
+          <caption>Overall Team Statistics</caption>
+          <tr>
+            <td> 
+              <label>
+                Number of Games:
+                <select id="select_type" name="select_type">
+              <option value="" selected disabled hidden>Select Measure Type</option>
+              <option value="played">Played</option>
+              <option value="won">Won</option>
+              </select>
+              </label>
+              
+            </td>
+            <td> 
+              <select id="satistic_type" name="satistic_type">
+              <option value="" selected disabled hidden>Select Statistic Measure</option>
+              <option value="most">Most</option>
+              <option value="least">Least</option>
+              </select>
+            </td>
+            </tr>
+            <tr> 
+              <td>
+                  <label for="num">
+                    Number of results: 
+                    <input type="number" id= "num" name="num" value="1">
+                  </label>
+              </td>
+              
+              <?php
+              if($database_username == "Manager")
+              {
+               echo  '<td>
+                  <label for="stat_coach">
+                    Show Coaches: 
+                    <input type="checkbox" id= "stat_coach" name="stat_coach" value="stat_coach">
+                  </label>
+                </td>';
+              }
+            ?>
+              
+            </tr>
+            
+            
+            <tr>
+               <td colspan="2" style="text-align: center;"><input type="submit" value="Submit" /></td>
+            </tr>
+        </table>
+      </form>
+    </div>
 
 <!-- Enter Game Results -->
 <div class="box">
