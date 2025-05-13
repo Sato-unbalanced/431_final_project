@@ -1,20 +1,23 @@
 <?php
 require_once('config.php');
 require_once('Adaptation.php');
-
 session_start();
 
+// sessions valid - check if logged in, assigned role, 'Manager', and DB level credentials 
+if (
+  !isset($_SESSION['UserName']) || 
+  !isset($_SESSION['UserRole']) ||
+  $_SESSION['UserRole'] !== 'Manager' ||
+  !isset($_SESSION['role_name']) ||
+  !isset($_SESSION['role_password'])
+) {
+  echo "Access denied. Only Managers are allowed to view this content.";
+  exit;
+}
 
 //retrives credential that were assigened from the role that the user has at a database level
 $database_username = $_SESSION['role_name'];
 $database_password = $_SESSION['role_password'];
-$role = $_SESSION['UserRole'] ?? null;
-
-if ($role !== 'Manager') {
-    // Role is not Manager — show error
-    echo "Access denied. Only Managers are allowed.";
-    exit; // Optional: stop further script execution
-}
 
 // Connect to DB
 $db = new mysqli(DATA_BASE_HOST, $database_username, $database_password, DATA_BASE_NAME);
@@ -353,7 +356,7 @@ $topLocation = $locationResult ? $locationResult->fetch_assoc() : null;
 </div>
 
 <div class="box">
-      <form action="process_team_statistc.php" method="GET">
+      <form action="process_team_statistics.php" method="GET">
         <table>
           <caption>Overall Team Statistics</caption>
           <tr>
