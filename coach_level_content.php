@@ -6,9 +6,6 @@ require_once('Adaptation.php');
 
 session_start();
 
-// Include public visitor content to display up top
-require_once('no_level_content.php');
-
 //retrives credential that were assigened from the role that the user has at a database level
 $database_username = $_SESSION['role_name'] ?? null;
 $database_password = $_SESSION['role_password'] ?? null;
@@ -19,6 +16,9 @@ if ($role !== 'Coach') {
     echo "Access denied. Only Coaches are allowed.";
     exit; // Optional: stop further script execution
 }
+
+// Include public visitor content to display up top
+require_once('no_level_content.php');
 
 // Connect to DB
 $db = new mysqli(DATA_BASE_HOST, $database_username, $database_password, DATA_BASE_NAME);
