@@ -38,13 +38,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_game'])) {
     $homeTeam = intval($_POST['home_team']);
     $awayTeam = intval($_POST['away_team']);
 
-    $addGame = $db->prepare("INSERT INTO Game (Location, Month, Day, Year, HomeTeam, AwayTeam, HomeScore, AwayScore) VALUES (?, ?, ?, ?, ?, ?, 0, 0)");
-    $addGame->bind_param('siiiii', $location, $month, $day, $year, $homeTeam, $awayTeam);
-    $addGame->execute();
+    $gameDate = DateTime::createFromFormat('Y-n-j', "$year-$month-$day");
+    $today = new DateTime();
 
-    header("Location: manager_level_content.php");
-    exit;
+    if ($gameDate && $gameDate > $today) {
+        $addGame = $db->prepare("INSERT INTO Game (Location, Month, Day, Year, HomeTeam, AwayTeam, HomeScore, AwayScore) VALUES (?, ?, ?, ?, ?, ?, 0, 0)");
+        $addGame->bind_param('siiiii', $location, $month, $day, $year, $homeTeam, $awayTeam);
+        $addGame->execute();
+
+        header("Location: manager_level_content.php");
+        exit;
+    } else {
+        $error = "Error: Game date must be in the future.";
+    }
 }
+
+
 
 // --- Handle Delete Game ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_game'])) {
@@ -357,6 +366,9 @@ $topLocation = $locationResult ? $locationResult->fetch_assoc() : null;
 <!-- Upcoming Games Section -->
 <div class="box">
   <h2>Upcoming Games</h2>
+  <?php if (!empty($error)): ?>
+    <p style="color: red; font-size: 1.5em;"><?php echo htmlspecialchars($error); ?></p>
+  <?php endif; ?>
   <?php if ($upcomingGames && $upcomingGames->num_rows > 0): ?>
   <table>
     <tr>
@@ -390,7 +402,7 @@ $topLocation = $locationResult ? $locationResult->fetch_assoc() : null;
     <input type="text" name="location" placeholder="Location" required>
     <input type="number" name="month" placeholder="Month (1-12)" min="1" max="12" required>
     <input type="number" name="day" placeholder="Day (1-31)" min="1" max="31" required>
-    <input type="number" name="year" placeholder="Year (e.g. 2025)" min="2024" required>
+    <input type="number" name="year" placeholder="Year (e.g. 2025)" required>
     <input type="number" name="home_team" placeholder="Home Team ID" required>
     <input type="number" name="away_team" placeholder="Away Team ID" required>
     <input type="submit" name="add_game" value="Add Game">
