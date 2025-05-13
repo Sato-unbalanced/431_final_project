@@ -5,7 +5,9 @@
 
 require_once('config.php');
 require_once('Adaptation.php');
-session_start();  // Still needed if user sessions in general (guest, etc.)
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+} // Still needed if user sessions in general (guest, etc.)
 
 //retrives credential that were assigened from the role that the user has at a database level
 $database_username = $_SESSION['role_name'];

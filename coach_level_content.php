@@ -3,7 +3,9 @@
 // Coach dashboard: shows no_level_content.php + manage team, players, statistics
 require_once('config.php');
 require_once('Adaptation.php');
-session_start(); 
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
 // Include public visitor content to display up top
 require_once('no_level_content.php');
 

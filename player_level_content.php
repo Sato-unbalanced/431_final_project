@@ -3,7 +3,9 @@
 // no_level_content.php + Player personalized dash: view teammates, stats, upcoming games, update own info.
 require_once('config.php');
 require_once('Adaptation.php');
-session_start(); // Needed for $_SESSION['UserName']
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
 require_once('no_level_content.php');
 
 //retrives credential that were assigened from the role that the user has at a database level
@@ -47,29 +49,36 @@ $playerTeamName = $playerData['TeamName'];
 
 // --- If form submitted, update personal info ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_info'])) {
-    $newFirstName = trim($_POST['first_name'] ?? '');
-    $newLastName  = trim($_POST['last_name'] ?? '');
-    $newStreet    = trim($_POST['street'] ?? '');
-    $newCity      = trim($_POST['city'] ?? '');
-    $newState     = trim($_POST['state'] ?? '');
-    $newCountry   = trim($_POST['country'] ?? '');
-    $newZipcode   = trim($_POST['zipcode'] ?? '');
+  $newFirstName = trim($_POST['first_name'] ?? '');
+  $newLastName  = trim($_POST['last_name'] ?? '');
+  $newStreet    = trim($_POST['street'] ?? '');
+  $newCity      = trim($_POST['city'] ?? '');
+  $newState     = trim($_POST['state'] ?? '');
+  $newCountry   = trim($_POST['country'] ?? '');
+  $newZipcode   = trim($_POST['zipcode'] ?? '');
 
-    // Player.ID
-    // Updates current player's record in Player table using their ID
-    $update = $db->prepare("
-        UPDATE Player 
-        SET FirstName = ?, LastName = ?, Street = ?, City = ?, State = ?, Country = ?, Zipcode = ?
-        WHERE ID = ?
-    ");
-    $update->bind_param('sssssssi', $newFirstName, $newLastName, $newStreet, $newCity, $newState, $newCountry, $newZipcode, $playerID);
+  // Validate the zipcode (example for US ZIP code)
+  $zipcodePattern = '/^\d{5}(-\d{4})?$/'; // Matches 5-digit or 9-digit ZIP codes
+  if (!preg_match($zipcodePattern, $newZipcode)) {
+      $updateMessage = "<p style='color:red; text-align:center;'>Invalid ZIP code format.</p>";
+  } else {
+      // Player.ID
+      // Updates current player's record in Player table using their ID
+      $update = $db->prepare("
+          UPDATE Player 
+          SET FirstName = ?, LastName = ?, Street = ?, City = ?, State = ?, Country = ?, Zipcode = ? 
+          WHERE ID = ?
+      ");
+      $update->bind_param('sssssssi', $newFirstName, $newLastName, $newStreet, $newCity, $newState, $newCountry, $newZipcode, $playerID);
 
-    if ($update->execute()) {
-        $updateMessage = "<p style='color:green; text-align:center;'>Information updated successfully!</p>";
-    } else {
-        $updateMessage = "<p style='color:red; text-align:center;'>Failed to update information.</p>";
-    }
+      if ($update->execute()) {
+          $updateMessage = "<p style='color:green; text-align:center;'>Information updated successfully!</p>";
+      } else {
+          $updateMessage = "<p style='color:red; text-align:center;'>Failed to update information.</p>";
+      }
+  }
 }
+
 
 // --- Get teammates ---
  
