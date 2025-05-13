@@ -5,6 +5,14 @@ require_once('config.php');
 require_once('Adaptation.php');
 session_start();
 
+$role = $_SESSION['UserRole'] ?? null;
+
+if ($role !== 'Player') {
+    // Role is not Manager — show error
+    echo "Access denied. Only Players are allowed.";
+    exit; // Optional: stop further script execution
+}
+
 require_once('no_level_content.php');
 //retrives credential that were assigened from the role that the user has at a database level
 $database_username = $_SESSION['role_name'];

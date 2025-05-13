@@ -6,6 +6,14 @@ require_once('Adaptation.php');
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
+$role = $_SESSION['UserRole'] ?? null;
+
+if ($role !== 'Coach') {
+    // Role is not Manager — show error
+    echo "Access denied. Only Coaches are allowed.";
+    exit; // Optional: stop further script execution
+}
+
 // Include public visitor content to display up top
 require_once('no_level_content.php');
 
