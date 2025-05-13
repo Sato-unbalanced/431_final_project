@@ -1,4 +1,8 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
+
 require_once('config.php');
 require_once('Adaptation.php');
 
@@ -15,7 +19,6 @@ if (isset($_GET['guest']) && $_GET['guest'] === 'true') {
 
 // Access session values
 $role = htmlspecialchars($_SESSION['UserRole']);
-session_start(); 
 
 $database_username = $_SESSION['role_name'];
 $database_password = $_SESSION['role_password'];
@@ -26,7 +29,7 @@ $select_type = $_GET["select_type"];
 $stats_type = $_GET["satistic_type"];
 require_once("landing_page.php");
 
-$coaches = $_GET['stat_coach'];
+$coaches = isset($_GET['stat_coach']) ? $_GET['stat_coach'] : null;
 if(isset($coaches) && isset($select_type) && isset($stats_type))
 {
     $limit = isset($_GET['num']) ? $_GET['num'] : 1;    
@@ -80,7 +83,7 @@ if(isset($coaches) && isset($select_type) && isset($stats_type))
     }
     else
     {
-        echo "<p>There should only be a number value of 1.</p>"
+        echo "<p>There should only be a number value of 1.</p>";
     }
 }    
 elseif (isset($select_type) && isset($stats_type))

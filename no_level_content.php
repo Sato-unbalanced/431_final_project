@@ -178,7 +178,7 @@ $topLocation = $locationResult ? $locationResult->fetch_assoc() : null;
 
 
 <div class="box">
-      <form action="process_team_statistc.php" method="GET">
+      <form action="process_team_statistics.php" method="GET">
         <table>
           <caption>Overall Team Statistics</caption>
           <tr>
