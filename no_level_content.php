@@ -18,7 +18,6 @@ $db = new mysqli(DATA_BASE_HOST, $database_username, $database_password, DATA_BA
 if ($db->connect_errno !== 0) {
     die("Database connection failed: " . $db->connect_error);
 }
-
 // Query for team names
 $teamQuery = "SELECT Name FROM Team";
 $teamResult = $db->query($teamQuery);
@@ -90,6 +89,16 @@ $topLocation = $locationResult ? $locationResult->fetch_assoc() : null;
     table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
     th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: center; }
     th { background-color: #ddd; }
+    input {padding: 8px 16px; border-radius: 5px;}
+    select  
+    {
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      padding: 8px;
+      border-radius: 5px;
+      background-color: #f8f9fa;
+      color: #333;
+    }
   </style>
 </head>
 <body>
@@ -167,5 +176,46 @@ $topLocation = $locationResult ? $locationResult->fetch_assoc() : null;
 
 </div>
 
+
+<div class="box">
+      <form action="process_team_statistc.php" method="GET">
+        <table>
+          <caption>Overall Team Statistics</caption>
+          <tr>
+            <td> 
+              <label>
+                Number of Games:
+                <select id="select_type" name="select_type">
+              <option value="" selected disabled hidden>Select Measure Type</option>
+              <option value="played">Played</option>
+              <option value="won">Won</option>
+              </select>
+              </label>
+              
+            </td>
+            <td> 
+              <select id="satistic_type" name="satistic_type">
+              <option value="" selected disabled hidden>Select Statistic Measure</option>
+              <option value="most">Most</option>
+              <option value="least">Least</option>
+              </select>
+            </td>
+            </tr>
+            <tr> 
+              <td>
+                  <label for="num">
+                    Number of results: 
+                    <input type="number" id= "num" name="num" value="1">
+                  </label>
+              </td>    
+            </tr>
+            
+            
+            <tr>
+               <td colspan="2" style="text-align: center;"><input type="submit" value="Submit" /></td>
+            </tr>
+        </table>
+      </form>
+    </div>
 </body>
 </html>

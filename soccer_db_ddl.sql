@@ -229,8 +229,9 @@ CREATE OR REPLACE USER Player@localhost IDENTIFIED By '!_player_20_022_1' PASSWO
 GRANT SELECT, UPDATE ON Player to Player@localhost;
 GRANT SELECT ON Game to Player@localhost;
 GRANT SELECT ON Team to Player@localhost;
+GRANT SELECT ON Coach to Player@localhost;
 GRANT SELECT ON Statistics to Player@localhost;
-GRANT SELECT ON UserLogin TO Coach@localhost;
+GRANT SELECT ON UserLogin TO Player@localhost;
 
 GRANT SELECT, INSERT ON UserLogin to phpWebEngine@localhost IDENTIFIED by '!_phpWebEngine';
 GRANT SELECT ON Roles to phpWebEngine@localhost IDENTIFIED by '!_phpWebEngine';

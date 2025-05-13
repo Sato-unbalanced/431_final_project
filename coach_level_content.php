@@ -19,6 +19,7 @@ if ($db->connect_errno !== 0) {
     die("Database connection failed: " . $db->connect_error);
 }
 
+
 // --- Get Coach Info and Team ---
 $currentUserName = $_SESSION['UserName'] ?? '';
 
@@ -331,6 +332,93 @@ $freeAgentsResult = $freeAgentsStmt->get_result();
   <?php else: ?>
     <p>No upcoming games found.</p>
   <?php endif; ?>
+</div>
+
+<div class="box">
+    <h2>Winning Games<h2>
+    <?php
+    $query = "SELECT 
+        t1.Name AS HomeTeam, 
+        t2.Name AS AwayTeam, 
+        Location, 
+        Month, Day, Year, 
+        HomeScore, AwayScore
+    FROM Game
+    JOIN Team t1 ON Game.HomeTeam = t1.ID
+    JOIN Team t2 ON Game.AwayTeam = t2.ID
+    WHERE (HomeTeam = ? and HomeScore > AwayScore) OR (AwayTeam = ? and HomeScore < AwayScore) 
+    ORDER BY Year, Month, Day";
+
+    $stmt = $db->prepare($query);
+    $stmt->bind_param('ii', $coachTeamID, $coachTeamID);
+    $stmt->execute();
+    $stmt->store_result();
+    $stmt->bind_result($home_team, $away_team, $location, $month, $day, $year, $home_score, $away_score);
+    if($stmt->num_rows == 0)
+    {
+      echo "<p>There is no winning games for you team yet.</p>";
+    }
+    else
+    {
+      echo "<table> <tr><th>Date</th><th>Location</th><th>Home Team</th><th>Home Score</th><th>Away Team</th><th>Away Score</th></tr>";
+      while($stmt->fetch())
+      {
+          echo "<tr>";
+          echo "<td style='border: 1px solid #ccc; padding: 0.5rem; text-align: center; '>".$month.'/'.$day.'/'.$year."</td>";
+          echo "<td style='border: 1px solid #ccc; padding: 0.5rem; text-align: center; '>".$location."</td>";
+          echo "<td style='border: 1px solid #ccc; padding: 0.5rem; text-align: center; '>".$home_team."</td>";
+          echo "<td style='border: 1px solid #ccc; padding: 0.5rem; text-align: center; '>".$home_score."</td>";
+          echo "<td style='border: 1px solid #ccc; padding: 0.5rem; text-align: center; '>".$away_team."</td>";
+          echo "<td style='border: 1px solid #ccc; padding: 0.5rem; text-align: center; '>".$away_score."</td>";
+          echo "</tr>";
+      }
+      echo "</table>";  
+    }
+
+      
+    ?>
+    <h2>Losing Games<h2>
+    <?php
+    $query = "SELECT 
+        t1.Name AS HomeTeam, 
+        t2.Name AS AwayTeam, 
+        Location, 
+        Month, Day, Year, 
+        HomeScore, AwayScore
+    FROM Game
+    JOIN Team t1 ON Game.HomeTeam = t1.ID
+    JOIN Team t2 ON Game.AwayTeam = t2.ID
+    WHERE (HomeTeam = ? and HomeScore < AwayScore) OR (AwayTeam = ? and HomeScore > AwayScore) 
+    ORDER BY Year, Month, Day";
+
+    $stmt = $db->prepare($query);
+    $stmt->bind_param('ii', $coachTeamID, $coachTeamID);
+    $stmt->execute();
+    $stmt->store_result();
+    $stmt->bind_result($home_team, $away_team, $location, $month, $day, $year, $home_score, $away_score);
+
+    if($stmt->num_rows == 0)
+    {i
+      echo "<p>There is no losing games for you team yet.</p>";
+    }
+    else
+    {
+      echo "<table> <tr><th>Date</th><th>Location</th><th>Home Team</th><th>Home Score</th><th>Away Team</th><th>Away Score</th></tr>";
+      while($stmt->fetch())
+      {
+          echo "<tr>";
+          echo "<td style='border: 1px solid #ccc; padding: 0.5rem; text-align: center; '>".$month.'/'.$day.'/'.$year."</td>";
+          echo "<td style='border: 1px solid #ccc; padding: 0.5rem; text-align: center; '>".$location."</td>";
+          echo "<td style='border: 1px solid #ccc; padding: 0.5rem; text-align: center; '>".$home_team."</td>";
+          echo "<td style='border: 1px solid #ccc; padding: 0.5rem; text-align: center; '>".$home_score."</td>";
+          echo "<td style='border: 1px solid #ccc; padding: 0.5rem; text-align: center; '>".$away_team."</td>";
+          echo "<td style='border: 1px solid #ccc; padding: 0.5rem; text-align: center; '>".$away_score."</td>";
+          echo "</tr>";
+      }
+      echo "</table>";
+    }
+    $db->close();
+    ?>
 </div>
 
 </body>
